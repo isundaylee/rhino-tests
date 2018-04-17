@@ -1,0 +1,495 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<style>
+	::selection {
+		background: #b7ffb7;
+	}
+	::-moz-selection {
+		background: #b7ffb7;
+	}
+
+	body {
+		font-family: Arial, Helvetica, sans-serif;
+		font-size: 16px;
+		width: 800px;
+		margin: 0 auto;
+	}
+	h1 {
+		text-align: center;
+		font-size: 36px;
+	}
+	.h3-alike {
+		display:inline;
+		font-size: 1.17em;
+		font-weight: bold;
+	}
+	pre {
+		font-family: "Consolas", Monaco, monospace;
+		font-size:small;
+		background: #fafafa;
+		margin: 0;
+        padding-left:20px;
+	}
+	code {
+		font-family: "Consolas", Monaco, monospace;
+	}
+
+    .code-block
+    {
+        padding-left:20px;
+    }
+	.changes {
+		margin: 1em 0;
+	}
+	.changes input:active {
+		position: relative;
+		top: 1px;
+	}
+	.changes input:hover:after {
+		padding-left: 16px;
+		font-size: 10px;
+		content: 'More';
+	}
+	.changes input:checked:hover:after {
+		content: 'Less';
+	}
+	.changes input ~ .show-hide {
+		display: none;
+	}
+	.changes input:checked ~ .show-hide {
+		display: block;
+	}
+
+	ul {
+		margin: 0;
+		padding: 0.5em 0 0.5em 2.5em;
+	}
+	ul li {
+		margin-bottom: 3px;
+	}
+	ul li:last-child {
+		margin-bottom: 0;
+	}
+	.disc {
+		list-style-type:disc
+	}
+	.circ {
+		list-style-type:circ
+	}
+	
+	.single {
+		padding: 0 0.5em;
+	}
+	.specs {
+		border-collapse:collapse;
+	}
+	.specs td, .specs th {
+		font-size: 14px;
+	}
+	.specs td {
+		border: 1px solid black;
+	}
+	.specs td td, .specs td th {
+		border: none;
+	}
+	.specs	td, .specs td td, .specs td th {
+		padding: 0 0.2em 0.2em;
+		text-align: center;
+	}
+	.specs td tr:last-child td, 
+	.specs td tr:last-child th {
+		padding: 0 0.2em;
+	}
+	.serial-time {
+		width: 5.5em;
+	}
+	.modified-time {
+		width: 11.7em;
+	}
+	.compiler {
+	}
+	.comp-opt {
+	}
+	.sys-specs {
+	}
+	.organized-options td {
+		padding: 0 0.125em;
+	}
+	</style>
+	<!--[if lte IE 8]>
+	<style>
+	.changes input + .show-hide {
+		display: block;
+	}
+	.changes input {
+		display: none;
+	}
+	</style>
+	<![endif]-->
+	<title>Rtm_Stencil Sample</title>
+</head>
+
+<body>
+	<h1>Rtm_Stencil Sample</h1>
+	<p>Stencil computation is the basis for the Reverse Time Migration algorithm in 
+        seismic computing. The underlying mathematical problem is to solve the wave 
+        equation using finite difference method. This sample computes a 3D 25 points 
+        stencil. The computation contains 4 layer loops for each dimention and time 
+        duration. One methodology runs in straight scalar code, one using Intel&#174; 
+        Cilk&#8482; Plus <code>pragma simd</code> to allow the innoer loop to vectorize, one using Intel&#174; 
+        Cilk&#8482; Plus <code>cilk_spawn</code> to include parallelization, and one with both.</p>
+	<p>Based on the code example from book "Structured Parallel Programming" by Michael McCool, Arch Robison, and James Reinders.</p>
+
+	<div class="changes">
+		<div class="h3-alike">System Requirements:</div> <input type="checkbox">
+		<ul class="disc show-hide">
+			<li>Hardware:
+				<ul class="circ">
+					<li>Any Intel processor with Intel&#174; Advanced Vector Extensions (Intel&#174; AVX) support like 2nd Generation Intel Core&#8482; i3, i5, or i7 processors and Intel&#174; Xeon&#174; E3 or E5 processor family, or newer</li>
+				</ul>
+			</li>
+			<li>For Microsoft Windows*:
+				<ul class="circ">
+					<li>Microsoft Visual Studio 2010* or 2012* standard edition or above</li>
+					<li>Intel&#174; C++ Composer XE 2015 for Windows</li>
+				</ul>
+			</li>
+			<li>For Linux*:
+				<ul class="circ">
+					<li>GNU* GCC 4.5 or newer</li>
+					<li>Intel&#174; C++ Composer XE 2015 for Linux</li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+	
+	<h3>Code Change Highlights:</h3>
+		The simplest strategy to parallelize this stencil is to use a parallel loop, 
+    however, memory bandwidth could become the major bottleneck for getting good 
+    speedup on multi-core processors. We developed cache oblivious implementations 
+    to optimize the cache usage and program performance. For the description and 
+    analysis of the cache oblivious algorighm, please refer to the paper &quot;The cache 
+    complexity of multithreaded cache oblivious algorighms&quot; written by Matteo Frigo 
+    and Volker Strumpen. This strategy utilizes cilk_spawn keywords.<p>
+        Moreover, to improve the performance of the base cases or inner most loop, this 
+        code applied pragma simd for vectorization.
+    </p>
+
+    <div class="changes">
+		<code>cilk_spawn</code> <input type="checkbox">
+		<div class="show-hide">
+			<div class="code-block"><strong>linear version:</strong>
+<pre>  // March forward in time
+  for(int t = t0; t &lt; t1; ++t) {
+    // March over 3D Cartesian grid
+    for(int z = z0; z &lt; z1; ++z) {
+      for(int y = y0; y &lt; y1; ++y) {
+        for(int x = x0; x &lt; x1; ++x) {              
+          // 25-point stencil applied to g_grid3D, centered at point x,y,z
+          int point_xyz = z * num_xy + y * c_num_x + x;
+          float *grid3D_cur = &amp;g_grid3D[t & 1][point_xyz];
+          float *grid3D_next = &amp;g_grid3D[(t + 1) & 1][point_xyz];
+          float div = c_coef[0] * grid3D_cur[0] 
+            + c_coef[1] * ((grid3D_cur[0 + 1] + grid3D_cur[0 - 1])
+              + (grid3D_cur[0 + c_num_x] + grid3D_cur[0 - c_num_x])
+              + (grid3D_cur[0 + num_xy] + grid3D_cur[0 - num_xy]))
+            + c_coef[2] * ((grid3D_cur[0 + 2] + grid3D_cur[0 - 2])
+              + (grid3D_cur[0 + num_x2] + grid3D_cur[0 - num_x2])
+              + (grid3D_cur[0 + num_xy2] + grid3D_cur[0 - num_xy2]))
+            + c_coef[3] * ((grid3D_cur[0 + 3] + grid3D_cur[0 - 3])
+              + (grid3D_cur[0 + num_x3] + grid3D_cur[0 - num_x3])
+              + (grid3D_cur[0 + num_xy3] + grid3D_cur[0 - num_xy3]))
+            + c_coef[4] * ((grid3D_cur[0 + 4] + grid3D_cur[0 - 4])
+              + (grid3D_cur[0 + num_x4] + grid3D_cur[0 - num_x4])
+              + (grid3D_cur[0 + num_xy4] + grid3D_cur[0 - num_xy4]));
+          grid3D_next[0] = 2 * grid3D_cur[0] - grid3D_next[0] + g_vsq[point_xyz] * div;
+        }
+      }
+    }
+  }</pre>
+			</div>
+			<div class="code-block"><strong><code>cilk_spawn</code> version:</strong>
+<pre>void co_cilk(int t0, int t1, 
+           int x0, int dx0, int x1, int dx1,
+           int y0, int dy0, int y1, int dy1, 
+           int z0, int dz0, int z1, int dz1 )
+{
+  int dt = t1 - t0, dx = x1 - x0, dy = y1 - y0, dz = z1 - z0;
+  int i;
+
+  // Divide 3D Cartesian grid into chunk size and time period
+  if (dx >= c_dx_threshold && dx >= dy && dx >= dz &&
+      dt >= 1 && dx >= 2 * c_distance * dt * c_NPIECES) {
+    //divide and conquer along x direction
+    int chunk = dx / c_NPIECES;
+
+    for (i = 0; i &lt; c_NPIECES - 1; ++i)
+      cilk_spawn co_cilk(t0, t1,
+                       x0 + i * chunk, c_distance, x0 + (i+1) * chunk, -c_distance,
+                       y0, dy0, y1, dy1,
+                       z0, dz0, z1, dz1);
+    /*nospawn*/co_cilk(t0, t1,
+                       x0 + i * chunk, c_distance, x1, -c_distance,
+                       y0, dy0, y1, dy1, 
+                       z0, dz0, z1, dz1);
+    cilk_sync;
+    cilk_spawn co_cilk(t0, t1, 
+                       x0, dx0, x0, c_distance,
+                       y0, dy0, y1, dy1, 
+                       z0, dz0, z1, dz1);
+    for (i = 1; i &lt; c_NPIECES; ++i)
+      cilk_spawn co_cilk(t0, t1,
+                       x0 + i * chunk, -c_distance, x0 + i * chunk, c_distance,
+                       y0, dy0, y1, dy1, 
+                       z0, dz0, z1, dz1);
+    /*nospawn*/co_cilk(t0, t1, 
+                       x1, -c_distance, x1, dx1,
+                       y0, dy0, y1, dy1, 
+                       z0, dz0, z1, dz1);
+  } else if (dy >= c_dyz_threshold && dy >= dz && dt >= 1 && dy >= 2 * c_distance * dt * c_NPIECES) {
+    //similarly divide and conquer along y direction
+    .......
+  } else if (dz >= c_dyz_threshold && dt >= 1 && dz >= 2 * c_distance * dt * c_NPIECES) {
+    //similarly divide and conquer along z direction
+    .......
+  }  else if (dt > c_dt_threshold) {
+    .......
+}</pre>
+            </div>
+			<div>This change creates code that ran 3x faster on our machine.
+	</div></div></div>
+	<div class="changes">
+		<code>pragma simd</code> <input type="checkbox">
+		<div class="show-hide">
+			<div>The autovectorizer thinks the inner loop of loop_stencil existing vector 
+                dependence. That&#39;s because compiler cannot decide whether output array grid3D_next and input array grid3D_cut 
+                have overlap. <code>pragma simd</code> provides the programmer with the opportunity to enhance the compiler's knowledge 
+                when no dependence acctually takes place.</div>
+			<div class="code-block"><strong>scalar version:</strong>
+<pre>        for(int x = x0; x &lt; x1; ++x) {          
+          // 25-point stencil applied to g_grid3D, centered at point x,y,z
+          int point_xyz = z * num_xy + y * c_num_x + x;
+          float *grid3D_cur = &amp;g_grid3D[t & 1][point_xyz];
+          float *grid3D_next = &amp;g_grid3D[(t + 1) & 1][point_xyz];
+          float div = c_coef[0] * grid3D_cur[0] 
+            + c_coef[1] * ((grid3D_cur[0 + 1] + grid3D_cur[0 - 1])
+              + (grid3D_cur[0 + c_num_x] + grid3D_cur[0 - c_num_x])
+              + (grid3D_cur[0 + num_xy] + grid3D_cur[0 - num_xy]))
+            + c_coef[2] * ((grid3D_cur[0 + 2] + grid3D_cur[0 - 2])
+              + (grid3D_cur[0 + num_x2] + grid3D_cur[0 - num_x2])
+              + (grid3D_cur[0 + num_xy2] + grid3D_cur[0 - num_xy2]))
+            + c_coef[3] * ((grid3D_cur[0 + 3] + grid3D_cur[0 - 3])
+              + (grid3D_cur[0 + num_x3] + grid3D_cur[0 - num_x3])
+              + (grid3D_cur[0 + num_xy3] + grid3D_cur[0 - num_xy3]))
+            + c_coef[4] * ((grid3D_cur[0 + 4] + grid3D_cur[0 - 4])
+              + (grid3D_cur[0 + num_x4] + grid3D_cur[0 - num_x4])
+              + (grid3D_cur[0 + num_xy4] + grid3D_cur[0 - num_xy4]));
+          grid3D_next[0] = 2 * grid3D_cur[0] - grid3D_next[0] + g_vsq[point_xyz] * div;
+        }</pre>
+			</div>
+			<div class="code-block"><strong>SIMD version:</strong>
+<pre>        int point_yz = z * num_xy + y * c_num_x;
+        float * grid3D_cur = &amp;g_grid3D[t & 1][point_yz];
+        float * grid3D_next = &amp;g_grid3D[(t + 1) & 1][point_yz];
+#pragma simd
+        for(int x = x0; x &lt; x1; ++x) {
+          // 25-point stencil applied to g_grid3D, centered at point x,y,z
+          float div = c_coef[0] * grid3D_cur[x] 
+            + c_coef[1] * ((grid3D_cur[x + 1] + grid3D_cur[x - 1])
+              + (grid3D_cur[x + c_num_x] + grid3D_cur[x - c_num_x])
+              + (grid3D_cur[x + num_xy] + grid3D_cur[x - num_xy]))
+            + c_coef[2] * ((grid3D_cur[x + 2] + grid3D_cur[x - 2])
+              + (grid3D_cur[x + num_x2] + grid3D_cur[x - num_x2])
+              + (grid3D_cur[x + num_xy2] + grid3D_cur[x - num_xy2]))
+            + c_coef[3] * ((grid3D_cur[x + 3] + grid3D_cur[x - 3])
+              + (grid3D_cur[x + num_x3] + grid3D_cur[x - num_x3])
+              + (grid3D_cur[x + num_xy3] + grid3D_cur[x - num_xy3]))
+            + c_coef[4] * ((grid3D_cur[x + 4] + grid3D_cur[x - 4])
+              + (grid3D_cur[x + num_x4] + grid3D_cur[x - num_x4])
+              + (grid3D_cur[x + num_xy4] + grid3D_cur[x - num_xy4]));
+          grid3D_next[x] = 2 * grid3D_cur[x] - grid3D_next[x] + g_vsq[point_yz+x] * div;
+        }</pre>
+			</div>
+		</div>			
+	</div>
+	<div class="changes">
+		<code>cilk_spawn</code> + <code>pragma simd</code> <input type="checkbox">
+		<div class="show-hide">
+			<div class="code-block">To combine <code>cilk_spawn</code> and <code>pragma simd</code>, 
+                in the cilk_spawn version of loop_stencil code, simply call the co_basecase_nv 
+                with a simd version of inner loop.</div>
+			<div class="code-block"><strong><code>cilk_spawn</code> + SIMD version:</strong>
+<pre>void co_cilksimd(int t0, int t1, 
+           int x0, int dx0, int x1, int dx1,
+           int y0, int dy0, int y1, int dy1, 
+           int z0, int dz0, int z1, int dz1 )
+{
+  int dt = t1 - t0, dx = x1 - x0, dy = y1 - y0, dz = z1 - z0;
+  int i;
+
+  // Divide 3D Cartesian grid into chunk size and time period
+  if (dx >= c_dx_threshold && dx >= dy && dx >= dz &&
+      dt >= 1 && dx >= 2 * c_distance * dt * c_NPIECES) {
+    //divide and conquer along x direction
+    int chunk = dx / c_NPIECES;
+
+    for (i = 0; i &lt; c_NPIECES - 1; ++i)
+      cilk_spawn co_cilksimd(t0, t1,
+                           x0 + i * chunk, c_distance, x0 + (i+1) * chunk, -c_distance,
+                           y0, dy0, y1, dy1,
+                           z0, dz0, z1, dz1);
+    /*nospawn*/co_cilksimd(t0, t1,
+                           x0 + i * chunk, c_distance, x1, -c_distance,
+                           y0, dy0, y1, dy1, 
+                           z0, dz0, z1, dz1);
+    cilk_sync;
+    cilk_spawn co_cilksimd(t0, t1, 
+                           x0, dx0, x0, c_distance,
+                           y0, dy0, y1, dy1, 
+                           z0, dz0, z1, dz1);
+    for (i = 1; i &lt; c_NPIECES; ++i)
+      cilk_spawn co_cilksimd(t0, t1,
+                           x0 + i * chunk, -c_distance, x0 + i * chunk, c_distance,
+                           y0, dy0, y1, dy1, 
+                           z0, dz0, z1, dz1);
+    /*nospawn*/co_cilksimd(t0, t1, 
+                           x1, -c_distance, x1, dx1,
+                           y0, dy0, y1, dy1, 
+                           z0, dz0, z1, dz1);
+  } else if (dy >= c_dyz_threshold && dy >= dz && dt >= 1 && dy >= 2 * c_distance * dt * c_NPIECES) {
+    .......
+  } else if (dz >= c_dyz_threshold && dt >= 1 && dz >= 2 * c_distance * dt * c_NPIECES) {
+    .......
+  }  else if (dt > c_dt_threshold) {
+    .......
+}</pre></div>
+		</div>
+	</div>
+
+	<h3>Performance Data:</h3>
+    <p><strong>Note</strong>: Modified Speedup shows performance speedup with respect to serial implementation.</p>
+	<table class="specs">
+		<tr>
+			<th class="modified-time"> Modified fps<sup>1</sup></th>
+			<th class="compiler">Compiler (Intel&#174; 64)</th>
+			<th class="comp-opt">Compiler options</th>
+			<th class="sys-specs">System specifications</th>
+		</tr>
+		<tr>
+			<td>
+				<table>
+					<tr><td>simd: 5.3x</td></tr>
+					<tr><td>cilk_spawn: 3.5x</td></tr>
+					<tr><td>both: 10.8x</td></tr>
+
+				</table>
+			</td>
+			<td>Intel&#174; C++ Compiler 15.0 for Windows</td>
+            <td>/O2 /fp:fast /QxHost /Qipo /MD</td>
+			<td>
+				<table>
+					<tr><td>Windows 7 SP1* (x64)</td></tr>
+                    <tr><td>4th Generation Intel&#174; Core&#8482; 
+                    i5-4670T CPU @ 2.30GHz</td></tr>
+					<tr><td>16GB memory</td></tr>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<table>
+					<tr><td>simd: 5.2x</td></tr>
+					<tr><td>cilk_spawn: 3.3x</td></tr>
+					<tr><td>both: 11.7x</td></tr>                    
+                </table>
+			</td>
+			<td>Intel&#174; C++ Compiler 15.0 for Linux</td>
+			<td>-O2 -fp-model fast -xHOST -ipo</td>
+			<td>
+				<table>
+					<tr><td>Linux 2.6.32-220.el6.x86_64</td></tr>
+                    <tr><td>4th Generation Intel® Core&#8482; i5-4670T CPU @ 2.30GHz</td></tr>
+					<tr><td>8GB memory</td></tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+    <div><sup>1</sup>Performance is also calculated in throughput where Mcells/sec means number of million cells are processed per second,
+                     M-FAdd/s means number of million floating point add operations are processed per second and M-FMul/s means number of million floating point multiply operations are processed per second.</div>
+    <div><sup>2</sup>/fp:fast(-fp-model fast) is used for better performance. If your program requires bit-for-bit reproducability, you can change to /fp:source(-fp-model source).</div>
+	<h3>Build Instructions:</h3>
+	<div class="changes">For Visual Studio 2010* and 2012* users: <input type="checkbox">
+		<ul class="show-hide disc">
+            <li>Open the solution <code>.sln</code> file</li>
+			<li>[Optional] To collect performance numbers (will run example 5 times and take average time):
+				<ul class="circ">
+					<li>Project Properties -> C/C++ -> Preprocessor -> Preprocessor Definitions: add <code>PERF_NUM</code></li>
+				</ul>
+			</li>
+			<li>Choose a configuration (for best performance, choose a release configuration):
+				<ul class="circ">
+					<li>Intel-debug and Intel-release: uses Intel C++ compiler</li>
+					<li>VSC-debug and VSC-release: uses Visual C++ compiler (only linear/scalar will run)</li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+	<div class="changes">For Windows Command Line users: <input type="checkbox">
+		<ul class="show-hide disc">
+			<li>Enable your particular compiler environment</li>
+			<li>for Intel C++ Compiler:
+				<ul class="circ">
+					<li>open the appropriate Intel C++ compiler command prompt</li>
+					<li>navigate to project folder</li>
+					<li>compile with <code>Build.bat [perf_num]</code>
+						<ul>
+							<li><code>perf_num</code>: collect performance numbers (will run example 5 times and take average time)</li>
+						</ul>
+					</li>
+					<li>to run: <code>Build.bat run [help|0|1|2|3|4]</code></li>
+				</ul>
+			</li>
+			<li>for Visual C++ Compiler (only linear/scalar will run): 
+				<ul class="circ">
+					<li>open the appropriate Visual Studio 2010 or 2012 command prompt</li>
+					<li>navigate to project folder</li>
+					<li>to compile: <code>Build.bat [perf_num]</code>
+						<ul>
+							<li><code>perf_num</code>: collect performance numbers (will run example 5 times and take average time)</li>
+						</ul>
+					</li>
+					<li>to run: <code>Build.bat run</code></li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+	<div class="changes">For Linux*/OS X* users: <input type="checkbox">
+		<ul class="show-hide disc">
+			<li>set the icc environment: <code>source &#60;icc-install-dir&#62;/bin/compilervars.sh {ia32|intel64}</code></li>
+			<li>navigate to project folder</li>
+			<li>for Intel C++ compiler:
+				<ul class="circ">
+					<li>to compile: <code>make [icpc] [perf_num=1]</code>
+						<ul>
+							<li><code>perf_num=1</code>: collect performance numbers (will run example 5 times and take average time)</li>
+						</ul>
+					</li>
+					<li>to run: <code>make run [option=help|0|1|2|3|4]</code></li>
+				</ul>
+			</li>
+			<li>for gcc (only linear/scalar will run):
+				<ul class="circ">
+					<li>compile with <code>make gcc [perf_num=1]</code>
+						<ul>
+							<li><code>perf_num=1</code>: collect performance numbers (will run example 5 times and take average time)</li>
+						</ul>
+					</li>
+					<li>to run: <code>make run</code></li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+</body>
+</html>

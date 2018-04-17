@@ -1,0 +1,789 @@
+<Loop>:
+--------------------------------------------------------------------------------------------------------------------------------Loop at depth 1 containing: %for.body86<header><latch><exiting>
+</Loop>
+<------------------------------------------------------------------------------------------------>
+none sync
+<Loop>:
+--------------------------------------------------------------------------------------------------------------------------------Loop at depth 1 containing: %for.body64<header><latch><exiting>
+</Loop>
+<------------------------------------------------------------------------------------------------>
+none sync
+<Loop>:
+--------------------------------------------------------------------------------------------------------------------------------Loop at depth 1 containing: %for.body44<header><latch><exiting>
+</Loop>
+<------------------------------------------------------------------------------------------------>
+none sync
+<Loop>:
+--------------------------------------------------------------------------------------------------------------------------------Loop at depth 2 containing: %for.body12<header><latch><exiting>
+</Loop>
+<------------------------------------------------------------------------------------------------>
+none sync
+<Loop>:
+--------------------------------------------------------------------------------------------------------------------------------Loop at depth 1 containing: %for.body12.lr.ph<header>,%for.body12,%for.cond4.loopexit<latch><exiting>
+    Loop at depth 2 containing: %for.body12<header><latch><exiting>
+</Loop>
+<------------------------------------------------------------------------------------------------>
+<blocks>
+
+for.body44.preheader:                             ; preds = %for.cond4.loopexit
+  br label %for.body44
+
+</blocks>
+nsucc != 2
+no endl
+
+for.body44.preheader:                             ; preds = %for.cond4.loopexit
+  br label %for.body44
+
+  br label %for.body12
+
+; Function Attrs: noinline nounwind uwtable
+define void @_Z41calculate_path_for_swaption_kernel_scalarPfS_S_S_(float* nocapture readonly %initial_LIBOR_rate, float* nocapture readonly %volatility, float* nocapture readonly %normal_distribution_rand, float* nocapture %discounted_swaption_payoffs) #0 {
+entry:
+  %initial_LIBOR_rate66 = bitcast float* %initial_LIBOR_rate to i8*
+  %forward_LIBOR_rates = alloca [80 x float], align 16
+  %forward_LIBOR_rates65 = bitcast [80 x float]* %forward_LIBOR_rates to i8*
+  %B = alloca [40 x float], align 16
+  %S = alloca [40 x float], align 16
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* %forward_LIBOR_rates65, i8* %initial_LIBOR_rate66, i64 320, i32 4, i1 false)
+  br label %for.body12.lr.ph
+
+for.cond4.loopexit:                               ; preds = %for.body12
+  %indvars.iv.next59 = add nuw nsw i64 %indvars.iv58, 1
+  %indvars.iv.next53 = add nuw nsw i64 %indvars.iv52, 1
+  %exitcond61 = icmp eq i64 %indvars.iv.next59, 40
+  br i1 %exitcond61, label %for.body44.preheader, label %for.body12.lr.ph
+
+for.body44.preheader:                             ; preds = %for.cond4.loopexit
+  br label %for.body44
+
+for.body12.lr.ph:                                 ; preds = %entry, %for.cond4.loopexit
+  %indvars.iv58 = phi i64 [ 0, %entry ], [ %indvars.iv.next59, %for.cond4.loopexit ]
+  %indvars.iv52 = phi i64 [ 1, %entry ], [ %indvars.iv.next53, %for.cond4.loopexit ]
+  %arrayidx8 = getelementptr inbounds float, float* %normal_distribution_rand, i64 %indvars.iv58
+  %0 = load float, float* %arrayidx8, align 4
+  %conv9 = fmul float %0, 5.000000e-01
+  %1 = xor i64 %indvars.iv58, -1
+  br label %for.body12
+
+for.body12:                                       ; preds = %for.body12, %for.body12.lr.ph
+  %indvars.iv54 = phi i64 [ %indvars.iv52, %for.body12.lr.ph ], [ %indvars.iv.next55, %for.body12 ]
+  %spot_LIBOR_drift.042 = phi float [ 0.000000e+00, %for.body12.lr.ph ], [ %add24, %for.body12 ]
+  %2 = add nsw i64 %indvars.iv54, %1
+  %arrayidx15 = getelementptr inbounds float, float* %volatility, i64 %2
+  %3 = load float, float* %arrayidx15, align 4
+  %mul16 = fmul float %3, 2.500000e-01
+  %arrayidx18 = getelementptr inbounds [80 x float], [80 x float]* %forward_LIBOR_rates, i64 0, i64 %indvars.iv54
+  %4 = load float, float* %arrayidx18, align 4
+  %mul19 = fmul float %mul16, %4
+  %mul22 = fmul float %4, 2.500000e-01
+  %add23 = fadd float %mul22, 1.000000e+00
+  %div = fdiv float %mul19, %add23
+  %add24 = fadd float %spot_LIBOR_drift.042, %div
+  %mul25 = fmul float %3, 5.000000e-01
+  %sub26 = fsub float %add24, %mul25
+  %mul27 = fmul float %3, %sub26
+  %mul28 = fmul float %mul27, 2.500000e-01
+  %mul29 = fmul float %conv9, %3
+  %add30 = fadd float %mul29, %mul28
+  %call31 = tail call float @expf(float %add30) #4
+  %mul34 = fmul float %call31, %4
+  store float %mul34, float* %arrayidx18, align 4
+  %indvars.iv.next55 = add nuw nsw i64 %indvars.iv54, 1
+  %lftr.wideiv1 = trunc i64 %indvars.iv.next55 to i32
+  %exitcond = icmp eq i32 %lftr.wideiv1, 80
+  br i1 %exitcond, label %for.cond4.loopexit, label %for.body12
+
+for.body44:                                       ; preds = %for.body44, %for.body44.preheader
+  %indvars.iv48 = phi i64 [ 40, %for.body44.preheader ], [ %indvars.iv.next49.1, %for.body44 ]
+  %s.038 = phi float [ 0.000000e+00, %for.body44.preheader ], [ %add51.1, %for.body44 ]
+  %b.037 = phi float [ 1.000000e+00, %for.body44.preheader ], [ %div49.1, %for.body44 ]
+  %arrayidx46 = getelementptr inbounds [80 x float], [80 x float]* %forward_LIBOR_rates, i64 0, i64 %indvars.iv48
+  %5 = load float, float* %arrayidx46, align 8
+  %mul47 = fmul float %5, 2.500000e-01
+  %add48 = fadd float %mul47, 1.000000e+00
+  %div49 = fdiv float %b.037, %add48
+  %mul50 = fmul float %div49, 2.500000e-01
+  %add51 = fadd float %s.038, %mul50
+  %6 = add nsw i64 %indvars.iv48, -40
+  %arrayidx54 = getelementptr inbounds [40 x float], [40 x float]* %B, i64 0, i64 %6
+  store float %div49, float* %arrayidx54, align 8
+  %arrayidx57 = getelementptr inbounds [40 x float], [40 x float]* %S, i64 0, i64 %6
+  store float %add51, float* %arrayidx57, align 8
+  %indvars.iv.next49 = or i64 %indvars.iv48, 1
+  %arrayidx46.1 = getelementptr inbounds [80 x float], [80 x float]* %forward_LIBOR_rates, i64 0, i64 %indvars.iv.next49
+  %7 = load float, float* %arrayidx46.1, align 4
+  %mul47.1 = fmul float %7, 2.500000e-01
+  %add48.1 = fadd float %mul47.1, 1.000000e+00
+  %div49.1 = fdiv float %div49, %add48.1
+  %mul50.1 = fmul float %div49.1, 2.500000e-01
+  %add51.1 = fadd float %add51, %mul50.1
+  %8 = add nsw i64 %indvars.iv48, -39
+  %arrayidx54.1 = getelementptr inbounds [40 x float], [40 x float]* %B, i64 0, i64 %8
+  store float %div49.1, float* %arrayidx54.1, align 4
+  %arrayidx57.1 = getelementptr inbounds [40 x float], [40 x float]* %S, i64 0, i64 %8
+  store float %add51.1, float* %arrayidx57.1, align 4
+  %indvars.iv.next49.1 = add nuw nsw i64 %indvars.iv48, 2
+  %exitcond51.1 = icmp eq i64 %indvars.iv.next49.1, 80
+  br i1 %exitcond51.1, label %for.body64.preheader, label %for.body44
+
+for.body64.preheader:                             ; preds = %for.body44
+  br label %for.body64
+
+for.body64:                                       ; preds = %for.body64.preheader, %for.body64
+  %indvars.iv45 = phi i64 [ %indvars.iv.next46, %for.body64 ], [ 0, %for.body64.preheader ]
+  %swaption_payoff.035 = phi float [ %swaption_payoff.1, %for.body64 ], [ 0.000000e+00, %for.body64.preheader ]
+  %arrayidx66 = getelementptr inbounds [15 x i32], [15 x i32]* @_ZL9c_lengths, i64 0, i64 %indvars.iv45
+  %9 = load i32, i32* %arrayidx66, align 4
+  %sub67 = add nsw i32 %9, -1
+  %idxprom68 = sext i32 %sub67 to i64
+  %arrayidx69 = getelementptr inbounds [40 x float], [40 x float]* %B, i64 0, i64 %idxprom68
+  %10 = load float, float* %arrayidx69, align 4
+  %sub70 = fsub float 1.000000e+00, %10
+  %arrayidx72 = getelementptr inbounds [15 x float], [15 x float]* @_ZL15c_strike_prices, i64 0, i64 %indvars.iv45
+  %11 = load float, float* %arrayidx72, align 4
+  %arrayidx74 = getelementptr inbounds [40 x float], [40 x float]* %S, i64 0, i64 %idxprom68
+  %12 = load float, float* %arrayidx74, align 4
+  %mul75 = fmul float %11, %12
+  %sub76 = fsub float %sub70, %mul75
+  %cmp77 = fcmp ogt float %sub76, 0.000000e+00
+  %mul78 = fmul float %sub76, 1.000000e+02
+  %add79 = fadd float %swaption_payoff.035, %mul78
+  %swaption_payoff.1 = select i1 %cmp77, float %add79, float %swaption_payoff.035
+  %indvars.iv.next46 = add nuw nsw i64 %indvars.iv45, 1
+  %exitcond47 = icmp eq i64 %indvars.iv.next46, 15
+  br i1 %exitcond47, label %for.body86.preheader, label %for.body64
+
+for.body86.preheader:                             ; preds = %for.body64
+  %swaption_payoff.1.lcssa = phi float [ %swaption_payoff.1, %for.body64 ]
+  br label %for.body86
+
+for.body86:                                       ; preds = %for.body86, %for.body86.preheader
+  %indvars.iv = phi i64 [ 0, %for.body86.preheader ], [ %indvars.iv.next.4, %for.body86 ]
+  %numeraire.033 = phi float [ 1.000000e+00, %for.body86.preheader ], [ %mul91.4, %for.body86 ]
+  %arrayidx88 = getelementptr inbounds [80 x float], [80 x float]* %forward_LIBOR_rates, i64 0, i64 %indvars.iv
+  %13 = load float, float* %arrayidx88, align 4
+  %mul89 = fmul float %13, 2.500000e-01
+  %add90 = fadd float %mul89, 1.000000e+00
+  %mul91 = fmul float %numeraire.033, %add90
+  %indvars.iv.next = add nuw nsw i64 %indvars.iv, 1
+  %arrayidx88.1 = getelementptr inbounds [80 x float], [80 x float]* %forward_LIBOR_rates, i64 0, i64 %indvars.iv.next
+  %14 = load float, float* %arrayidx88.1, align 4
+  %mul89.1 = fmul float %14, 2.500000e-01
+  %add90.1 = fadd float %mul89.1, 1.000000e+00
+  %mul91.1 = fmul float %mul91, %add90.1
+  %indvars.iv.next.1 = add nuw nsw i64 %indvars.iv, 2
+  %arrayidx88.2 = getelementptr inbounds [80 x float], [80 x float]* %forward_LIBOR_rates, i64 0, i64 %indvars.iv.next.1
+  %15 = load float, float* %arrayidx88.2, align 4
+  %mul89.2 = fmul float %15, 2.500000e-01
+  %add90.2 = fadd float %mul89.2, 1.000000e+00
+  %mul91.2 = fmul float %mul91.1, %add90.2
+  %indvars.iv.next.2 = add nuw nsw i64 %indvars.iv, 3
+  %arrayidx88.3 = getelementptr inbounds [80 x float], [80 x float]* %forward_LIBOR_rates, i64 0, i64 %indvars.iv.next.2
+  %16 = load float, float* %arrayidx88.3, align 4
+  %mul89.3 = fmul float %16, 2.500000e-01
+  %add90.3 = fadd float %mul89.3, 1.000000e+00
+  %mul91.3 = fmul float %mul91.2, %add90.3
+  %indvars.iv.next.3 = add nuw nsw i64 %indvars.iv, 4
+  %arrayidx88.4 = getelementptr inbounds [80 x float], [80 x float]* %forward_LIBOR_rates, i64 0, i64 %indvars.iv.next.3
+  %17 = load float, float* %arrayidx88.4, align 4
+  %mul89.4 = fmul float %17, 2.500000e-01
+  %add90.4 = fadd float %mul89.4, 1.000000e+00
+  %mul91.4 = fmul float %mul91.3, %add90.4
+  %indvars.iv.next.4 = add nuw nsw i64 %indvars.iv, 5
+  %exitcond.4 = icmp eq i64 %indvars.iv.next.4, 40
+  br i1 %exitcond.4, label %for.end94, label %for.body86
+
+for.end94:                                        ; preds = %for.body86
+  %mul91.4.lcssa = phi float [ %mul91.4, %for.body86 ]
+  %div95 = fdiv float %swaption_payoff.1.lcssa, %mul91.4.lcssa
+  store float %div95, float* %discounted_swaption_payoffs, align 4
+  ret void
+}
+
+<Loop>:
+--------------------------------------------------------------------------------------------------------------------------------Loop at depth 1 containing: %for.body86<header><latch><exiting>
+</Loop>
+<------------------------------------------------------------------------------------------------>
+none sync
+<Loop>:
+--------------------------------------------------------------------------------------------------------------------------------Loop at depth 1 containing: %for.body64<header><latch><exiting>
+</Loop>
+<------------------------------------------------------------------------------------------------>
+none sync
+<Loop>:
+--------------------------------------------------------------------------------------------------------------------------------Loop at depth 1 containing: %for.body44<header><latch><exiting>
+</Loop>
+<------------------------------------------------------------------------------------------------>
+none sync
+<Loop>:
+--------------------------------------------------------------------------------------------------------------------------------Loop at depth 2 containing: %for.body12<header><latch><exiting>
+</Loop>
+<------------------------------------------------------------------------------------------------>
+none sync
+<Loop>:
+--------------------------------------------------------------------------------------------------------------------------------Loop at depth 1 containing: %for.body12.lr.ph<header>,%for.body12,%for.cond4.loopexit<latch><exiting>
+    Loop at depth 2 containing: %for.body12<header><latch><exiting>
+</Loop>
+<------------------------------------------------------------------------------------------------>
+<blocks>
+
+for.body44.preheader:                             ; preds = %for.cond4.loopexit
+  br label %for.body44
+
+</blocks>
+nsucc != 2
+no endl
+
+for.body44.preheader:                             ; preds = %for.cond4.loopexit
+  br label %for.body44
+
+  br label %for.body12
+
+; Function Attrs: noinline nounwind uwtable
+define void @_Z41calculate_path_for_swaption_kernel_scalarPfS_S_S_(float* nocapture readonly %initial_LIBOR_rate, float* nocapture readonly %volatility, float* nocapture readonly %normal_distribution_rand, float* nocapture %discounted_swaption_payoffs) #0 {
+entry:
+  %initial_LIBOR_rate66 = bitcast float* %initial_LIBOR_rate to i8*
+  %forward_LIBOR_rates = alloca [80 x float], align 16
+  %forward_LIBOR_rates65 = bitcast [80 x float]* %forward_LIBOR_rates to i8*
+  %B = alloca [40 x float], align 16
+  %S = alloca [40 x float], align 16
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* %forward_LIBOR_rates65, i8* %initial_LIBOR_rate66, i64 320, i32 4, i1 false)
+  br label %for.body12.lr.ph
+
+for.cond4.loopexit:                               ; preds = %for.body12
+  %indvars.iv.next59 = add nuw nsw i64 %indvars.iv58, 1
+  %indvars.iv.next53 = add nuw nsw i64 %indvars.iv52, 1
+  %exitcond61 = icmp eq i64 %indvars.iv.next59, 40
+  br i1 %exitcond61, label %for.body44.preheader, label %for.body12.lr.ph
+
+for.body44.preheader:                             ; preds = %for.cond4.loopexit
+  br label %for.body44
+
+for.body12.lr.ph:                                 ; preds = %entry, %for.cond4.loopexit
+  %indvars.iv58 = phi i64 [ 0, %entry ], [ %indvars.iv.next59, %for.cond4.loopexit ]
+  %indvars.iv52 = phi i64 [ 1, %entry ], [ %indvars.iv.next53, %for.cond4.loopexit ]
+  %arrayidx8 = getelementptr inbounds float, float* %normal_distribution_rand, i64 %indvars.iv58
+  %0 = load float, float* %arrayidx8, align 4
+  %conv9 = fmul float %0, 5.000000e-01
+  %1 = xor i64 %indvars.iv58, -1
+  br label %for.body12
+
+for.body12:                                       ; preds = %for.body12, %for.body12.lr.ph
+  %indvars.iv54 = phi i64 [ %indvars.iv52, %for.body12.lr.ph ], [ %indvars.iv.next55, %for.body12 ]
+  %spot_LIBOR_drift.042 = phi float [ 0.000000e+00, %for.body12.lr.ph ], [ %add24, %for.body12 ]
+  %2 = add nsw i64 %indvars.iv54, %1
+  %arrayidx15 = getelementptr inbounds float, float* %volatility, i64 %2
+  %3 = load float, float* %arrayidx15, align 4
+  %mul16 = fmul float %3, 2.500000e-01
+  %arrayidx18 = getelementptr inbounds [80 x float], [80 x float]* %forward_LIBOR_rates, i64 0, i64 %indvars.iv54
+  %4 = load float, float* %arrayidx18, align 4
+  %mul19 = fmul float %mul16, %4
+  %mul22 = fmul float %4, 2.500000e-01
+  %add23 = fadd float %mul22, 1.000000e+00
+  %div = fdiv float %mul19, %add23
+  %add24 = fadd float %spot_LIBOR_drift.042, %div
+  %mul25 = fmul float %3, 5.000000e-01
+  %sub26 = fsub float %add24, %mul25
+  %mul27 = fmul float %3, %sub26
+  %mul28 = fmul float %mul27, 2.500000e-01
+  %mul29 = fmul float %conv9, %3
+  %add30 = fadd float %mul29, %mul28
+  %call31 = tail call float @expf(float %add30) #4
+  %mul34 = fmul float %call31, %4
+  store float %mul34, float* %arrayidx18, align 4
+  %indvars.iv.next55 = add nuw nsw i64 %indvars.iv54, 1
+  %lftr.wideiv1 = trunc i64 %indvars.iv.next55 to i32
+  %exitcond = icmp eq i32 %lftr.wideiv1, 80
+  br i1 %exitcond, label %for.cond4.loopexit, label %for.body12
+
+for.body44:                                       ; preds = %for.body44, %for.body44.preheader
+  %indvars.iv48 = phi i64 [ 40, %for.body44.preheader ], [ %indvars.iv.next49.1, %for.body44 ]
+  %s.038 = phi float [ 0.000000e+00, %for.body44.preheader ], [ %add51.1, %for.body44 ]
+  %b.037 = phi float [ 1.000000e+00, %for.body44.preheader ], [ %div49.1, %for.body44 ]
+  %arrayidx46 = getelementptr inbounds [80 x float], [80 x float]* %forward_LIBOR_rates, i64 0, i64 %indvars.iv48
+  %5 = load float, float* %arrayidx46, align 8
+  %mul47 = fmul float %5, 2.500000e-01
+  %add48 = fadd float %mul47, 1.000000e+00
+  %div49 = fdiv float %b.037, %add48
+  %mul50 = fmul float %div49, 2.500000e-01
+  %add51 = fadd float %s.038, %mul50
+  %6 = add nsw i64 %indvars.iv48, -40
+  %arrayidx54 = getelementptr inbounds [40 x float], [40 x float]* %B, i64 0, i64 %6
+  store float %div49, float* %arrayidx54, align 8
+  %arrayidx57 = getelementptr inbounds [40 x float], [40 x float]* %S, i64 0, i64 %6
+  store float %add51, float* %arrayidx57, align 8
+  %indvars.iv.next49 = or i64 %indvars.iv48, 1
+  %arrayidx46.1 = getelementptr inbounds [80 x float], [80 x float]* %forward_LIBOR_rates, i64 0, i64 %indvars.iv.next49
+  %7 = load float, float* %arrayidx46.1, align 4
+  %mul47.1 = fmul float %7, 2.500000e-01
+  %add48.1 = fadd float %mul47.1, 1.000000e+00
+  %div49.1 = fdiv float %div49, %add48.1
+  %mul50.1 = fmul float %div49.1, 2.500000e-01
+  %add51.1 = fadd float %add51, %mul50.1
+  %8 = add nsw i64 %indvars.iv48, -39
+  %arrayidx54.1 = getelementptr inbounds [40 x float], [40 x float]* %B, i64 0, i64 %8
+  store float %div49.1, float* %arrayidx54.1, align 4
+  %arrayidx57.1 = getelementptr inbounds [40 x float], [40 x float]* %S, i64 0, i64 %8
+  store float %add51.1, float* %arrayidx57.1, align 4
+  %indvars.iv.next49.1 = add nuw nsw i64 %indvars.iv48, 2
+  %exitcond51.1 = icmp eq i64 %indvars.iv.next49.1, 80
+  br i1 %exitcond51.1, label %for.body64.preheader, label %for.body44
+
+for.body64.preheader:                             ; preds = %for.body44
+  br label %for.body64
+
+for.body64:                                       ; preds = %for.body64.preheader, %for.body64
+  %indvars.iv45 = phi i64 [ %indvars.iv.next46, %for.body64 ], [ 0, %for.body64.preheader ]
+  %swaption_payoff.035 = phi float [ %swaption_payoff.1, %for.body64 ], [ 0.000000e+00, %for.body64.preheader ]
+  %arrayidx66 = getelementptr inbounds [15 x i32], [15 x i32]* @_ZL9c_lengths, i64 0, i64 %indvars.iv45
+  %9 = load i32, i32* %arrayidx66, align 4
+  %sub67 = add nsw i32 %9, -1
+  %idxprom68 = sext i32 %sub67 to i64
+  %arrayidx69 = getelementptr inbounds [40 x float], [40 x float]* %B, i64 0, i64 %idxprom68
+  %10 = load float, float* %arrayidx69, align 4
+  %sub70 = fsub float 1.000000e+00, %10
+  %arrayidx72 = getelementptr inbounds [15 x float], [15 x float]* @_ZL15c_strike_prices, i64 0, i64 %indvars.iv45
+  %11 = load float, float* %arrayidx72, align 4
+  %arrayidx74 = getelementptr inbounds [40 x float], [40 x float]* %S, i64 0, i64 %idxprom68
+  %12 = load float, float* %arrayidx74, align 4
+  %mul75 = fmul float %11, %12
+  %sub76 = fsub float %sub70, %mul75
+  %cmp77 = fcmp ogt float %sub76, 0.000000e+00
+  %mul78 = fmul float %sub76, 1.000000e+02
+  %add79 = fadd float %swaption_payoff.035, %mul78
+  %swaption_payoff.1 = select i1 %cmp77, float %add79, float %swaption_payoff.035
+  %indvars.iv.next46 = add nuw nsw i64 %indvars.iv45, 1
+  %exitcond47 = icmp eq i64 %indvars.iv.next46, 15
+  br i1 %exitcond47, label %for.body86.preheader, label %for.body64
+
+for.body86.preheader:                             ; preds = %for.body64
+  %swaption_payoff.1.lcssa = phi float [ %swaption_payoff.1, %for.body64 ]
+  br label %for.body86
+
+for.body86:                                       ; preds = %for.body86, %for.body86.preheader
+  %indvars.iv = phi i64 [ 0, %for.body86.preheader ], [ %indvars.iv.next.4, %for.body86 ]
+  %numeraire.033 = phi float [ 1.000000e+00, %for.body86.preheader ], [ %mul91.4, %for.body86 ]
+  %arrayidx88 = getelementptr inbounds [80 x float], [80 x float]* %forward_LIBOR_rates, i64 0, i64 %indvars.iv
+  %13 = load float, float* %arrayidx88, align 4
+  %mul89 = fmul float %13, 2.500000e-01
+  %add90 = fadd float %mul89, 1.000000e+00
+  %mul91 = fmul float %numeraire.033, %add90
+  %indvars.iv.next = add nuw nsw i64 %indvars.iv, 1
+  %arrayidx88.1 = getelementptr inbounds [80 x float], [80 x float]* %forward_LIBOR_rates, i64 0, i64 %indvars.iv.next
+  %14 = load float, float* %arrayidx88.1, align 4
+  %mul89.1 = fmul float %14, 2.500000e-01
+  %add90.1 = fadd float %mul89.1, 1.000000e+00
+  %mul91.1 = fmul float %mul91, %add90.1
+  %indvars.iv.next.1 = add nuw nsw i64 %indvars.iv, 2
+  %arrayidx88.2 = getelementptr inbounds [80 x float], [80 x float]* %forward_LIBOR_rates, i64 0, i64 %indvars.iv.next.1
+  %15 = load float, float* %arrayidx88.2, align 4
+  %mul89.2 = fmul float %15, 2.500000e-01
+  %add90.2 = fadd float %mul89.2, 1.000000e+00
+  %mul91.2 = fmul float %mul91.1, %add90.2
+  %indvars.iv.next.2 = add nuw nsw i64 %indvars.iv, 3
+  %arrayidx88.3 = getelementptr inbounds [80 x float], [80 x float]* %forward_LIBOR_rates, i64 0, i64 %indvars.iv.next.2
+  %16 = load float, float* %arrayidx88.3, align 4
+  %mul89.3 = fmul float %16, 2.500000e-01
+  %add90.3 = fadd float %mul89.3, 1.000000e+00
+  %mul91.3 = fmul float %mul91.2, %add90.3
+  %indvars.iv.next.3 = add nuw nsw i64 %indvars.iv, 4
+  %arrayidx88.4 = getelementptr inbounds [80 x float], [80 x float]* %forward_LIBOR_rates, i64 0, i64 %indvars.iv.next.3
+  %17 = load float, float* %arrayidx88.4, align 4
+  %mul89.4 = fmul float %17, 2.500000e-01
+  %add90.4 = fadd float %mul89.4, 1.000000e+00
+  %mul91.4 = fmul float %mul91.3, %add90.4
+  %indvars.iv.next.4 = add nuw nsw i64 %indvars.iv, 5
+  %exitcond.4 = icmp eq i64 %indvars.iv.next.4, 40
+  br i1 %exitcond.4, label %for.end94, label %for.body86
+
+for.end94:                                        ; preds = %for.body86
+  %mul91.4.lcssa = phi float [ %mul91.4, %for.body86 ]
+  %div95 = fdiv float %swaption_payoff.1.lcssa, %mul91.4.lcssa
+  store float %div95, float* %discounted_swaption_payoffs, align 4
+  ret void
+}
+
+<Loop>:
+--------------------------------------------------------------------------------------------------------------------------------Loop at depth 1 containing: %for.body5<header><latch><exiting>
+</Loop>
+<------------------------------------------------------------------------------------------------>
+none sync
+<Loop>:
+--------------------------------------------------------------------------------------------------------------------------------Loop at depth 1 containing: %for.body<header><latch><exiting>
+</Loop>
+<------------------------------------------------------------------------------------------------>
+none sync
+<Loop>:
+--------------------------------------------------------------------------------------------------------------------------------Loop at depth 1 containing: %for.body5<header><latch><exiting>
+</Loop>
+<------------------------------------------------------------------------------------------------>
+none sync
+<Loop>:
+--------------------------------------------------------------------------------------------------------------------------------Loop at depth 1 containing: %for.body<header><latch><exiting>
+</Loop>
+<------------------------------------------------------------------------------------------------>
+none sync
+<Loop>:
+--------------------------------------------------------------------------------------------------------------------------------Loop at depth 1 containing: %for.body<header><latch><exiting>
+</Loop>
+<------------------------------------------------------------------------------------------------>
+none sync
+<Loop>:
+--------------------------------------------------------------------------------------------------------------------------------Loop at depth 1 containing: %pfor.detach<header>,%pfor.body,%pfor.inc<latch><exiting>
+</Loop>
+<------------------------------------------------------------------------------------------------>
+<blocks>
+
+pfor.end:                                         ; preds = %pfor.inc
+  sync label %for.body
+
+</blocks>
+Found candidate for cilk for!
+i64 96000
+
+; Function Attrs: nounwind
+define internal void @_Z32calculate_monte_carlo_paths_cilkPfS_S_S__pfor.body({ float*, float*, float*, float* }*, i64, i64) #2 {
+newFuncRoot:
+  %3 = getelementptr { float*, float*, float*, float* }, { float*, float*, float*, float* }* %0, i32 0, i32 0
+  %4 = load float*, float** %3
+  %5 = getelementptr { float*, float*, float*, float* }, { float*, float*, float*, float* }* %0, i32 0, i32 1
+  %6 = load float*, float** %5
+  %7 = getelementptr { float*, float*, float*, float* }, { float*, float*, float*, float* }* %0, i32 0, i32 2
+  %8 = load float*, float** %7
+  %9 = getelementptr { float*, float*, float*, float* }, { float*, float*, float*, float* }* %0, i32 0, i32 3
+  %10 = load float*, float** %9
+  br label %pfor.body
+
+pfor.inc.exitStub:                                ; preds = %next
+  ret void
+
+pfor.body:                                        ; preds = %newFuncRoot, %next
+  %11 = phi i64 [ %1, %newFuncRoot ], [ %14, %next ]
+  br label %12
+
+; <label>:12                                      ; preds = %pfor.body
+  %13 = mul nuw nsw i64 %11, 40
+  %add.ptr = getelementptr inbounds float, float* %4, i64 %13
+  %add.ptr2 = getelementptr inbounds float, float* %6, i64 %11
+  tail call void @_Z41calculate_path_for_swaption_kernel_scalarPfS_S_S_(float* %8, float* %10, float* %add.ptr, float* %add.ptr2) #2
+  br label %next
+
+next:                                             ; preds = %12
+  %14 = add i64 %11, 1
+  %15 = icmp eq i64 %14, %2
+  br i1 %15, label %pfor.inc.exitStub, label %pfor.body
+}
+
+TRANSFORMED LOOP!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+; ModuleID = 'release/simulations.pbc'
+target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-unknown-linux-gnu"
+
+; Function Attrs: nounwind uwtable
+define float @_Z34calculate_monte_carlo_paths_scalarPfS_S_S_(float* noalias %initial_LIBOR_rate, float* noalias %volatility, float* noalias %normal_distribution_rand, float* noalias %discounted_swaption_payoffs) #0 {
+entry:
+  br label %for.body
+
+for.body:                                         ; preds = %for.body, %entry
+  %indvars.iv11 = phi i64 [ 0, %entry ], [ %indvars.iv.next12, %for.body ]
+  %0 = mul nuw nsw i64 %indvars.iv11, 40
+  %add.ptr = getelementptr inbounds float, float* %normal_distribution_rand, i64 %0
+  %add.ptr2 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv11
+  tail call void @_Z41calculate_path_for_swaption_kernel_scalarPfS_S_S_(float* %initial_LIBOR_rate, float* %volatility, float* %add.ptr, float* %add.ptr2) #2
+  %indvars.iv.next12 = add nuw nsw i64 %indvars.iv11, 1
+  %exitcond14 = icmp eq i64 %indvars.iv.next12, 96000
+  br i1 %exitcond14, label %for.body5.preheader, label %for.body
+
+for.body5.preheader:                              ; preds = %for.body
+  br label %for.body5
+
+for.body5:                                        ; preds = %for.body5, %for.body5.preheader
+  %indvars.iv = phi i64 [ 0, %for.body5.preheader ], [ %indvars.iv.next.7, %for.body5 ]
+  %total_payoff.08 = phi float [ 0.000000e+00, %for.body5.preheader ], [ %add.7, %for.body5 ]
+  %arrayidx = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv
+  %1 = load float, float* %arrayidx, align 4
+  %add = fadd float %total_payoff.08, %1
+  %indvars.iv.next = or i64 %indvars.iv, 1
+  %arrayidx.1 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv.next
+  %2 = load float, float* %arrayidx.1, align 4
+  %add.1 = fadd float %add, %2
+  %indvars.iv.next.1 = or i64 %indvars.iv, 2
+  %arrayidx.2 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv.next.1
+  %3 = load float, float* %arrayidx.2, align 4
+  %add.2 = fadd float %add.1, %3
+  %indvars.iv.next.2 = or i64 %indvars.iv, 3
+  %arrayidx.3 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv.next.2
+  %4 = load float, float* %arrayidx.3, align 4
+  %add.3 = fadd float %add.2, %4
+  %indvars.iv.next.3 = or i64 %indvars.iv, 4
+  %arrayidx.4 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv.next.3
+  %5 = load float, float* %arrayidx.4, align 4
+  %add.4 = fadd float %add.3, %5
+  %indvars.iv.next.4 = or i64 %indvars.iv, 5
+  %arrayidx.5 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv.next.4
+  %6 = load float, float* %arrayidx.5, align 4
+  %add.5 = fadd float %add.4, %6
+  %indvars.iv.next.5 = or i64 %indvars.iv, 6
+  %arrayidx.6 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv.next.5
+  %7 = load float, float* %arrayidx.6, align 4
+  %add.6 = fadd float %add.5, %7
+  %indvars.iv.next.6 = or i64 %indvars.iv, 7
+  %arrayidx.7 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv.next.6
+  %8 = load float, float* %arrayidx.7, align 4
+  %add.7 = fadd float %add.6, %8
+  %indvars.iv.next.7 = add nuw nsw i64 %indvars.iv, 8
+  %exitcond.7 = icmp eq i64 %indvars.iv.next.7, 96000
+  br i1 %exitcond.7, label %for.end8, label %for.body5
+
+for.end8:                                         ; preds = %for.body5
+  %add.7.lcssa = phi float [ %add.7, %for.body5 ]
+  %div = fdiv float %add.7.lcssa, 9.600000e+04
+  ret float %div
+}
+
+declare void @_Z41calculate_path_for_swaption_kernel_scalarPfS_S_S_(float*, float*, float*, float*) #1
+
+; Function Attrs: nounwind uwtable
+define float @_Z30calculate_monte_carlo_paths_ANPfS_S_S_(float* noalias %initial_LIBOR_rate, float* noalias %volatility, float* noalias %normal_distribution_rand, float* noalias %discounted_swaption_payoffs) #0 {
+entry:
+  br label %for.body
+
+for.body:                                         ; preds = %entry, %for.body
+  %indvars.iv11 = phi i64 [ 0, %entry ], [ %indvars.iv.next12, %for.body ]
+  %0 = mul nuw nsw i64 %indvars.iv11, 40
+  %add.ptr = getelementptr inbounds float, float* %normal_distribution_rand, i64 %0
+  %add.ptr2 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv11
+  tail call void @_Z40calculate_path_for_swaption_kernel_arrayPfS_S_S_(float* %initial_LIBOR_rate, float* %volatility, float* %add.ptr, float* %add.ptr2) #2
+  %indvars.iv.next12 = add nuw nsw i64 %indvars.iv11, 8
+  %cmp = icmp slt i64 %indvars.iv.next12, 96000
+  br i1 %cmp, label %for.body, label %for.body5.preheader
+
+for.body5.preheader:                              ; preds = %for.body
+  br label %for.body5
+
+for.body5:                                        ; preds = %for.body5, %for.body5.preheader
+  %indvars.iv = phi i64 [ 0, %for.body5.preheader ], [ %indvars.iv.next.7, %for.body5 ]
+  %total_payoff.08 = phi float [ 0.000000e+00, %for.body5.preheader ], [ %add6.7, %for.body5 ]
+  %arrayidx = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv
+  %1 = load float, float* %arrayidx, align 4
+  %add6 = fadd float %total_payoff.08, %1
+  %indvars.iv.next = or i64 %indvars.iv, 1
+  %arrayidx.1 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv.next
+  %2 = load float, float* %arrayidx.1, align 4
+  %add6.1 = fadd float %add6, %2
+  %indvars.iv.next.1 = or i64 %indvars.iv, 2
+  %arrayidx.2 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv.next.1
+  %3 = load float, float* %arrayidx.2, align 4
+  %add6.2 = fadd float %add6.1, %3
+  %indvars.iv.next.2 = or i64 %indvars.iv, 3
+  %arrayidx.3 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv.next.2
+  %4 = load float, float* %arrayidx.3, align 4
+  %add6.3 = fadd float %add6.2, %4
+  %indvars.iv.next.3 = or i64 %indvars.iv, 4
+  %arrayidx.4 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv.next.3
+  %5 = load float, float* %arrayidx.4, align 4
+  %add6.4 = fadd float %add6.3, %5
+  %indvars.iv.next.4 = or i64 %indvars.iv, 5
+  %arrayidx.5 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv.next.4
+  %6 = load float, float* %arrayidx.5, align 4
+  %add6.5 = fadd float %add6.4, %6
+  %indvars.iv.next.5 = or i64 %indvars.iv, 6
+  %arrayidx.6 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv.next.5
+  %7 = load float, float* %arrayidx.6, align 4
+  %add6.6 = fadd float %add6.5, %7
+  %indvars.iv.next.6 = or i64 %indvars.iv, 7
+  %arrayidx.7 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv.next.6
+  %8 = load float, float* %arrayidx.7, align 4
+  %add6.7 = fadd float %add6.6, %8
+  %indvars.iv.next.7 = add nuw nsw i64 %indvars.iv, 8
+  %exitcond.7 = icmp eq i64 %indvars.iv.next.7, 96000
+  br i1 %exitcond.7, label %for.end8, label %for.body5
+
+for.end8:                                         ; preds = %for.body5
+  %add6.7.lcssa = phi float [ %add6.7, %for.body5 ]
+  %div = fdiv float %add6.7.lcssa, 9.600000e+04
+  ret float %div
+}
+
+declare void @_Z40calculate_path_for_swaption_kernel_arrayPfS_S_S_(float*, float*, float*, float*) #1
+
+; Function Attrs: nounwind uwtable
+define float @_Z32calculate_monte_carlo_paths_cilkPfS_S_S_(float* noalias %initial_LIBOR_rate, float* noalias %volatility, float* noalias %normal_distribution_rand, float* noalias %discounted_swaption_payoffs) #0 {
+entry:
+  br label %pfor.detach
+
+pfor.detach:                                      ; preds = %entry
+  %0 = alloca { float*, float*, float*, float* }
+  %1 = getelementptr { float*, float*, float*, float* }, { float*, float*, float*, float* }* %0, i32 0, i32 0
+  store float* %normal_distribution_rand, float** %1
+  %2 = getelementptr { float*, float*, float*, float* }, { float*, float*, float*, float* }* %0, i32 0, i32 1
+  store float* %discounted_swaption_payoffs, float** %2
+  %3 = getelementptr { float*, float*, float*, float* }, { float*, float*, float*, float* }* %0, i32 0, i32 2
+  store float* %initial_LIBOR_rate, float** %3
+  %4 = getelementptr { float*, float*, float*, float* }, { float*, float*, float*, float* }* %0, i32 0, i32 3
+  store float* %volatility, float** %4
+  %5 = bitcast { float*, float*, float*, float* }* %0 to i8*
+  call void @__cilkrts_cilk_for_64(void (i8*, i64, i64)* bitcast (void ({ float*, float*, float*, float* }*, i64, i64)* @_Z32calculate_monte_carlo_paths_cilkPfS_S_S__pfor.body to void (i8*, i64, i64)*), i8* %5, i64 96000, i32 0)
+  br label %for.body
+
+for.body:                                         ; preds = %pfor.detach, %for.body
+  %indvars.iv = phi i64 [ 0, %for.body ], [ %indvars.iv.next.7, %for.body ]
+  %total_payoff.08 = phi float [ 0.000000e+00, %for.body ], [ %add.7, %for.body ]
+  %arrayidx = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv
+  %6 = load float, float* %arrayidx, align 4
+  %add = fadd float %total_payoff.08, %6
+  %indvars.iv.next = or i64 %indvars.iv, 1
+  %arrayidx.1 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv.next
+  %7 = load float, float* %arrayidx.1, align 4
+  %add.1 = fadd float %add, %7
+  %indvars.iv.next.1 = or i64 %indvars.iv, 2
+  %arrayidx.2 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv.next.1
+  %8 = load float, float* %arrayidx.2, align 4
+  %add.2 = fadd float %add.1, %8
+  %indvars.iv.next.2 = or i64 %indvars.iv, 3
+  %arrayidx.3 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv.next.2
+  %9 = load float, float* %arrayidx.3, align 4
+  %add.3 = fadd float %add.2, %9
+  %indvars.iv.next.3 = or i64 %indvars.iv, 4
+  %arrayidx.4 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv.next.3
+  %10 = load float, float* %arrayidx.4, align 4
+  %add.4 = fadd float %add.3, %10
+  %indvars.iv.next.4 = or i64 %indvars.iv, 5
+  %arrayidx.5 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv.next.4
+  %11 = load float, float* %arrayidx.5, align 4
+  %add.5 = fadd float %add.4, %11
+  %indvars.iv.next.5 = or i64 %indvars.iv, 6
+  %arrayidx.6 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv.next.5
+  %12 = load float, float* %arrayidx.6, align 4
+  %add.6 = fadd float %add.5, %12
+  %indvars.iv.next.6 = or i64 %indvars.iv, 7
+  %arrayidx.7 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv.next.6
+  %13 = load float, float* %arrayidx.7, align 4
+  %add.7 = fadd float %add.6, %13
+  %indvars.iv.next.7 = add nuw nsw i64 %indvars.iv, 8
+  %exitcond.7 = icmp eq i64 %indvars.iv.next.7, 96000
+  br i1 %exitcond.7, label %for.end, label %for.body
+
+for.end:                                          ; preds = %for.body
+  %add.7.lcssa = phi float [ %add.7, %for.body ]
+  %div = fdiv float %add.7.lcssa, 9.600000e+04
+  ret float %div
+}
+
+; Function Attrs: nounwind uwtable
+define float @_Z35calculate_monte_carlo_paths_cilk_ANPfS_S_S_(float* noalias %initial_LIBOR_rate, float* noalias %volatility, float* noalias %normal_distribution_rand, float* noalias %discounted_swaption_payoffs) #0 {
+entry:
+  br label %pfor.detach
+
+pfor.detach:                                      ; preds = %entry, %pfor.inc
+  %indvars.iv11 = phi i64 [ 0, %entry ], [ %indvars.iv.next12, %pfor.inc ]
+  detach label %pfor.body, label %pfor.inc
+
+pfor.body:                                        ; preds = %pfor.detach
+  %0 = mul nuw nsw i64 %indvars.iv11, 40
+  %add.ptr = getelementptr inbounds float, float* %normal_distribution_rand, i64 %0
+  %add.ptr2 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv11
+  tail call void @_Z40calculate_path_for_swaption_kernel_arrayPfS_S_S_(float* %initial_LIBOR_rate, float* %volatility, float* %add.ptr, float* %add.ptr2) #2
+  reattach label %pfor.inc
+
+pfor.inc:                                         ; preds = %pfor.body, %pfor.detach
+  %indvars.iv.next12 = add nuw nsw i64 %indvars.iv11, 8
+  %cmp = icmp slt i64 %indvars.iv.next12, 96000
+  br i1 %cmp, label %pfor.detach, label %pfor.end
+
+pfor.end:                                         ; preds = %pfor.inc
+  sync label %for.body
+
+for.body:                                         ; preds = %for.body, %pfor.end
+  %indvars.iv = phi i64 [ 0, %pfor.end ], [ %indvars.iv.next.7, %for.body ]
+  %total_payoff.08 = phi float [ 0.000000e+00, %pfor.end ], [ %add4.7, %for.body ]
+  %arrayidx = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv
+  %1 = load float, float* %arrayidx, align 4
+  %add4 = fadd float %total_payoff.08, %1
+  %indvars.iv.next = or i64 %indvars.iv, 1
+  %arrayidx.1 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv.next
+  %2 = load float, float* %arrayidx.1, align 4
+  %add4.1 = fadd float %add4, %2
+  %indvars.iv.next.1 = or i64 %indvars.iv, 2
+  %arrayidx.2 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv.next.1
+  %3 = load float, float* %arrayidx.2, align 4
+  %add4.2 = fadd float %add4.1, %3
+  %indvars.iv.next.2 = or i64 %indvars.iv, 3
+  %arrayidx.3 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv.next.2
+  %4 = load float, float* %arrayidx.3, align 4
+  %add4.3 = fadd float %add4.2, %4
+  %indvars.iv.next.3 = or i64 %indvars.iv, 4
+  %arrayidx.4 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv.next.3
+  %5 = load float, float* %arrayidx.4, align 4
+  %add4.4 = fadd float %add4.3, %5
+  %indvars.iv.next.4 = or i64 %indvars.iv, 5
+  %arrayidx.5 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv.next.4
+  %6 = load float, float* %arrayidx.5, align 4
+  %add4.5 = fadd float %add4.4, %6
+  %indvars.iv.next.5 = or i64 %indvars.iv, 6
+  %arrayidx.6 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv.next.5
+  %7 = load float, float* %arrayidx.6, align 4
+  %add4.6 = fadd float %add4.5, %7
+  %indvars.iv.next.6 = or i64 %indvars.iv, 7
+  %arrayidx.7 = getelementptr inbounds float, float* %discounted_swaption_payoffs, i64 %indvars.iv.next.6
+  %8 = load float, float* %arrayidx.7, align 4
+  %add4.7 = fadd float %add4.6, %8
+  %indvars.iv.next.7 = add nuw nsw i64 %indvars.iv, 8
+  %exitcond.7 = icmp eq i64 %indvars.iv.next.7, 96000
+  br i1 %exitcond.7, label %for.end, label %for.body
+
+for.end:                                          ; preds = %for.body
+  %add4.7.lcssa = phi float [ %add4.7, %for.body ]
+  %div = fdiv float %add4.7.lcssa, 9.600000e+04
+  ret float %div
+}
+
+; Function Attrs: nounwind
+define internal void @_Z32calculate_monte_carlo_paths_cilkPfS_S_S__pfor.body({ float*, float*, float*, float* }*, i64, i64) #2 {
+newFuncRoot:
+  %3 = getelementptr { float*, float*, float*, float* }, { float*, float*, float*, float* }* %0, i32 0, i32 0
+  %4 = load float*, float** %3
+  %5 = getelementptr { float*, float*, float*, float* }, { float*, float*, float*, float* }* %0, i32 0, i32 1
+  %6 = load float*, float** %5
+  %7 = getelementptr { float*, float*, float*, float* }, { float*, float*, float*, float* }* %0, i32 0, i32 2
+  %8 = load float*, float** %7
+  %9 = getelementptr { float*, float*, float*, float* }, { float*, float*, float*, float* }* %0, i32 0, i32 3
+  %10 = load float*, float** %9
+  br label %pfor.body
+
+pfor.inc.exitStub:                                ; preds = %next
+  ret void
+
+pfor.body:                                        ; preds = %newFuncRoot, %next
+  %11 = phi i64 [ %1, %newFuncRoot ], [ %14, %next ]
+  br label %12
+
+; <label>:12                                      ; preds = %pfor.body
+  %13 = mul nuw nsw i64 %11, 40
+  %add.ptr = getelementptr inbounds float, float* %4, i64 %13
+  %add.ptr2 = getelementptr inbounds float, float* %6, i64 %11
+  tail call void @_Z41calculate_path_for_swaption_kernel_scalarPfS_S_S_(float* %8, float* %10, float* %add.ptr, float* %add.ptr2) #2
+  br label %next
+
+next:                                             ; preds = %12
+  %14 = add i64 %11, 1
+  %15 = icmp eq i64 %14, %2
+  br i1 %15, label %pfor.inc.exitStub, label %pfor.body
+}
+
+declare void @__cilkrts_cilk_for_64(void (i8*, i64, i64)*, i8*, i64, i32)
+
+attributes #0 = { nounwind uwtable "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #1 = { "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #2 = { nounwind }
+
+!llvm.ident = !{!0}
+
+!0 = !{!"clang version 3.8.1 "}
+PHI node entries do not match predecessors!
+  %indvars.iv = phi i64 [ 0, %for.body ], [ %indvars.iv.next.7, %for.body ]
+label %for.body
+label %pfor.detach
+LLVM ERROR: Broken function found, compilation aborted!
+make: *** [release/simulations.bc] Error 1

@@ -1,0 +1,78 @@
+#COMPILER ?= llvm-pir
+COMPILER ?= gcc
+
+CXX := icpc
+SRCDIR := src
+BUILDDIR := release
+CFLAGS := # -O2 -fp-model source -xHost -fast-transcendentals -fimf-precision=high
+EXTRA_CFLAGS :=
+LIBFLAGS := -lcilkrts # -vec-report1
+
+ifdef MKL
+	EXTRA_CFLAGS += -D IS_USING_MKL
+	LIBFLAGS += -mkl
+endif
+
+ifdef perf_num
+	EXTRA_CFLAGS += -D PERF_NUM
+endif
+
+include $(COMPILER).mk
+
+TARGET := $(BUILDDIR)/MonteCarlo
+
+SOURCES := $(wildcard $(SRCDIR)/*.cpp)
+OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.cpp=.o))
+
+$(OBJECTS): $(patsubst %.o,%.s, $(OBJECTS))
+$(TARGET): $(OBJECTS)
+	@echo " Linking..."
+	$(CXX) $^ $(LIBFLAGS) -o $(TARGET)
+
+# $(BUILDDIR)/%.o: $(SRCDIR)/%.cpp
+# 	@mkdir -p $(BUILDDIR)
+# 	$(CXX) -c $(CFLAGS) $(EXTRA_CFLAGS) -o $@ $< 
+
+$(BUILDDIR) :
+	if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
+
+$(BUILDDIR)/%.pbc : $(SRCDIR)/%.c | $(BUILDDIR)
+	$(CLANG) $(CFLAGS) $(CLANGOPTFLAGS) -c $< -emit-llvm -o $@
+
+$(BUILDDIR)/%.pbc : $(SRCDIR)/%.cpp | $(BUILDDIR)
+	$(CLANGPP) $(CXXFLAGS) $(CLANGOPTFLAGS) -c $< -emit-llvm -o $@
+
+$(BUILDDIR)/%.pll : $(SRCDIR)/%.c | $(BUILDDIR)
+	$(CLANG) $(CFLAGS) $(CLANGOPTFLAGS) -c $< -S -emit-llvm -o $@
+
+$(BUILDDIR)/%.pll : $(SRCDIR)/%.cpp | $(BUILDDIR)
+	$(CLANGPP) $(CXXFLAGS) $(CLANGOPTFLAGS) -c $< -S -emit-llvm -o $@
+
+$(BUILDDIR)/%.bc : $(BUILDDIR)/%.pbc
+	$(OPT) $< $(INITOPTFLAGS) -o $<
+	$(OPT) $< $(DETACH2CILK) -o $@
+	$(OPT) $@ $(CILKOPTFLAGS) -o $@
+
+# $(OPT) $< $(DETACH2CILK) $(CILKOPTFLAGS) $(INITOPTFLAGS) -o $@
+
+
+$(BUILDDIR)/%.s : $(BUILDDIR)/%.bc
+	$(LLC) $(LLCOPTFLAGS) $<
+
+$(BUILDDIR)/%.o : $(BUILDDIR)/%.s
+	$(GCC) -c $< -o $@
+
+# icpc: $(TARGET)
+
+# gcc: CXX := g++
+# gcc: CFLAGS := -O2 -mfpmath=sse -flto
+# gcc: $(TARGET)
+
+run: $(TARGET)
+	./$(TARGET) $(option)
+
+clean:
+	@echo " Cleaning..."
+	@rm -fr $(BUILDDIR) $(TARGET) 2>/dev/null || true
+
+.PHONY: clean

@@ -1,0 +1,19 @@
+Monte Carlo Sample
+
+License Information Follows
+---------------------------
+* src\timer.h, src\timer.cpp 
+* src\kernels.cpp, src\main.cpp
+* src\monte_carlo.h, src\simulations.cpp
+* readme.html, Makefile, Build.bat
+
+Copyright 2011-2013 Intel(R) Corporation
+
+* license: http://software.intel.com/en-us/articles/intel-sample-source-code-license-agreement/  
+
+
+Acknowledgement
+---------------------------
+Based on an original code by Paul Glasserman and Xiaoliang Zhao 
+(Columbia University, 1999-2000) with subsequent modifications 
+by Mike Giles (Oxford University, 2005-8)"

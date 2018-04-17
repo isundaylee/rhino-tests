@@ -1,0 +1,352 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<style>
+	::selection {
+		background: #b7ffb7;
+	}
+	::-moz-selection {
+		background: #b7ffb7;
+	}
+
+	body {
+		font-family: Arial, Helvetica, sans-serif;
+		font-size: 16px;
+		width: 800px;
+		margin: 0 auto;
+	}
+	h1 {
+		text-align: center;
+		font-size: 36px;
+	}
+	.h3-alike {
+		display:inline;
+		font-size: 1.17em;
+		font-weight: bold;
+	}
+	pre {
+		font-family: "Consolas", Monaco, monospace;
+		font-size:small;
+		background: #fafafa;
+		margin: 0;
+		padding-left:20px;
+	}
+	code {
+		font-family: "Consolas", Monaco, monospace;
+	}
+
+	.code-block {
+		padding-left:20px;
+	}
+	.changes {
+		margin: 1em 0;
+	}
+	.changes input:active {
+		position: relative;
+		top: 1px;
+	}
+	.changes input:hover:after {
+		padding-left: 16px;
+		font-size: 10px;
+		content: 'More';
+	}
+	.changes input:checked:hover:after {
+		content: 'Less';
+	}
+	.changes input ~ .show-hide {
+		display: none;
+	}
+	.changes input:checked ~ .show-hide {
+		display: block;
+		margin: 4px 0 0 0;
+	}
+
+	ul {
+		margin: 0;
+		padding: 0.5em 0 0.5em 2.5em;
+	}
+	ul li {
+		margin-bottom: 3px;
+	}
+	ul li:last-child {
+		margin-bottom: 0;
+	}
+	.disc {
+		list-style-type:disc
+	}
+	.circ {
+		list-style-type:circ
+	}
+	
+	.single {
+		padding: 0 0.5em;
+	}
+	.specs {
+		border-collapse:collapse;
+	}
+	.specs td, .specs th {
+		font-size: 14px;
+	}
+	.specs td {
+		border: 1px solid black;
+	}
+	.specs td td, .specs td th {
+		border: none;
+	}
+	.specs	td, .specs td td, .specs td th {
+		padding: 0 0.2em 0.2em;
+		text-align: center;
+	}
+	.specs td tr:last-child td, 
+	.specs td tr:last-child th {
+		padding: 0 0.2em;
+	}
+	.serial-time {
+	}
+	.modified-time {
+		width: 6.5em;
+	}
+	.compiler {
+		width: 9.5em;
+	}
+	.comp-opt {
+	}
+	.sys-specs {
+		width: 19em;
+	}
+	</style>
+	<!--[if lte IE 8]>
+	<style>
+	.changes input + .show-hide {
+		display: block;
+	}
+	.changes input {
+		display: none;
+	}
+	</style>
+	<![endif]-->
+	<title>Monte Carlo Sample</title>
+</head>
+
+<body>
+	<h1>Monte Carlo Sample</h1>
+	<p>Monte Carlo algorithms solve deterministic problems by using a probabilistic analogue. The algorithm requires repeated simulations of chance that lend themselves well to parallel processing and vectorization. The simulations in this example are run serially, with Intel&#174; Cilk&#8482; Plus Array Notation (AN) for vectorization, with Intel&#174; Cilk&#8482; Plus <code>cilk_for</code> for parallelization, and with both vectorization and <code>cilk_for</code>. In this example, the Monte Carlo algorithm is utilized to estimate the valuation of a European swaption, which is fundamentally calculated by the difference between the strike price and the future estimated value, or forward swap rate. The Monte Carlo algorithm estimates the valuation by applying the initial conditions to a normal distribution over many simulations to calculate a normal valuation.</p>
+	<p>Based on an original code by Paul Glasserman and Xiaoliang Zhao (Columbia University, 1999-2000) with subsequent modifications by Mike Giles (Oxford University, 2005-8)</p>
+	
+	<div class="changes">
+		<div class="h3-alike">System Requirements:</div> <input type="checkbox">
+		<ul class="disc show-hide">
+			<li>Hardware:
+				<ul class="circ">
+					<li>Any Intel processor with Intel&#174; Advanced Vector Extensions (Intel&#174; AVX) support like 2nd Generation Intel Core&#8482; i3, i5, or i7 processors and Intel&#174; Xeon&#174; E3 or E5 processor family, or newer</li>
+				</ul>
+			</li>
+			<li>For Microsoft* Windows*:
+				<ul class="circ">
+					<li>Microsoft Visual Studio 2010* or 2012* standard edition or above</li>
+					<li><a href="https://software.intel.com/en-us/intel-parallel-studio-xe">Intel&#174; Parallel Studio XE 2015 Composer Edition (or higher) for C++ Windows*</a></li>
+				</ul>
+			</li>
+			<li>For Linux*:
+				<ul class="circ">
+					<li>GNU* GCC 4.5 or newer</li>
+					<li><a href="https://software.intel.com/en-us/intel-parallel-studio-xe">Intel&#174; Parallel Studio XE 2015 Composer Edition (or higher) for C++ Linux*</a></li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+	
+	<h3>Code Change Highlights:</h3>
+	<div class="changes">
+		This code is optimized on two levels: calling simulations, which utilizes the <code>cilk_for</code> Keyword, and calculating discounted swaption payoffs, which utilizes Array Notation. 
+	<div class="changes">
+		<code>cilk_for</code> <input type="checkbox">
+		<div class="show-hide">
+			<div class="code-block"><strong>linear version:</strong>
+<pre>for (int path=0; path&#60;c_num_simulations; ++path) {
+    Pathcalc_Portfolio_Scalar_Kernel(initial_LIBOR_rate, volatility,
+        normal_distribution_rand+(path*c_earliest_maturity), 
+        discounted_swaption_payoffs+path);
+}</pre>
+			</div>
+			<div class="code-block"><strong><code>cilk_for</code> version:</strong>
+<pre>cilk_for (int path=0; path&#60;c_num_simulations; ++path) {
+    Pathcalc_Portfolio_Scalar_Kernel(initial_LIBOR_rate, volatility, 
+        normal_distribution_rand+(path*c_earliest_maturity), 
+        discounted_swaption_payoffs+path);
+}</pre></div>
+			<div>This simple change creates code that ran 4x faster on our machine.</div>
+		</div>
+	</div>
+	<div class="changes">
+		Array Notation <input type="checkbox">
+		<div class="show-hide">
+			<div>The vectorization itself happens within <code>kernels.cpp</code>. The math is identical, but is conducted over multiple simulations at once. An example occurs here:</div>
+			<div class="code-block"><strong>scalar version:</strong>
+<pre>for (int i=j+1; i&#60;c_maturity; ++i) {
+    float_point_precision volatility_local = volatility[i-j-1];
+    spot_LIBOR_drift += c_time_step*volatility_local*forward_LIBOR_rates[i]/
+        (1.0+c_time_step*forward_LIBOR_rates[i]);
+    forward_LIBOR_rates[i] *= exp(volatility_local*(spot_LIBOR_drift - 
+        0.5*volatility_local)*c_time_step + volatility_local*sqiz);
+}</pre>
+			</div>
+			<div class="code-block"><strong>array notation version:</strong>
+<pre>for (int i=j+1; i&#60;c_maturity; ++i) {
+    float_point_precision volatility_local = volatility[i-j-1];
+    spot_LIBOR_drift[:] += c_time_step*volatility_local*forward_LIBOR_rates[i][:]/
+        (1.0+c_time_step*forward_LIBOR_rates[i][:]);
+    forward_LIBOR_rates[i][:] *= exp(volatility_local*(spot_LIBOR_drift[:] - 
+        0.5*volatility_local)*c_time_step + volatility_local*sqiz[:]);
+}</pre></div>			
+		</div>
+	</div>
+	<div class="changes">
+		<code>cilk_for</code> + Array Notation <input type="checkbox">
+		<div class="show-hide">
+			<div>Combining <code>cilk_for</code> and array notation reduces the number of loops necessary because vectorized code will traverse the for loop in fewer steps.</div>
+			<div class="code-block"><strong><code>cilk_for</code> version:</strong>
+<pre>cilk_for (int path=0; path&#60;c_num_simulations; <strong>++path</strong>) {
+    Pathcalc_Portfolio_Scalar_Kernel(initial_LIBOR_rate, volatility, 
+        normal_distribution_rand+(path*c_earliest_maturity), 
+        discounted_swaption_payoffs+path);
+}</pre></div>
+			<div class="code-block"><strong><code>cilk_for</code> + Array Notation version:</strong>
+<pre>cilk_for (int path=0; path&#60;c_num_simulations; <strong>path+=c_simd_vector_length</strong>) {
+    calculate_path_for_swaption_kernel_array(initial_LIBOR_rate, volatility, 
+        normal_distribution_rand+(path*c_earliest_maturity), 
+        discounted_swaption_payoffs+path);
+}</pre></div>
+		</div>
+	</div>
+
+
+	<h3>Performance Data:</h3>
+    <p><strong>Note</strong>: Modified Speedup shows performance speedup with respect to serial implementation.</p>
+	<table class="specs">
+		<tr>
+			<th class="modified-time">Modified Speedup</th>
+			<th class="compiler">Compiler (Intel&#174; 64)</th>
+			<th class="comp-opt">Compiler options</th>
+			<th class="sys-specs">System specifications</th>
+		</tr>
+		<tr>
+			<td>
+				<table>
+					<tr><td>AN: 6.3x</td></tr>
+					<tr><td>cilk_for: 4.5x</td></tr>
+					<tr><td>Both: 28.2x</td></tr>
+				</table>
+			</td>
+			<td><a href="http://software.intel.com/en-us/c-compilers">Intel C++ Compiler 15.0 for Windows</a></td>
+			<td>/O2 /Oi /fp:source<sup>1</sup> /Qfast-transcendentals /Qimf-precision=high /QxHost /Qipo</td>
+			<td>
+				<table>
+					<tr><td>Microsoft Windows Server 2012* (x64)</td></tr>
+					<tr><td>Intel&#174; Xeon&#174; CPU E31280 @3.50GHz</td></tr>
+					<tr><td>8GB memory</td></tr>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<table>
+					<tr><td>AN: 8.8x</td></tr>
+					<tr><td>cilk_for: 4.2x</td></tr>
+					<tr><td>Both: 38.3x</td></tr>
+				</table>
+			</td>
+			<td><a href="http://software.intel.com/en-us/c-compilers">Intel C++ Compiler 15.0 for Linux</a></td>
+			<td>-O2 -fp-model source<sup>1</sup> -fast-transcendentals -fimf-precision=high<br>-xHost -ipo</td>
+			<td>
+				<table>
+					<tr><td>Red Hat* Enterprise Linux 7 (x64)</td></tr>
+					<tr><td>Intel&#174; Core&#8482; i7-4790 CPU @3.60GHz</td></tr>
+					<tr><td>32GB memory</td></tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+<div><sup>1</sup>/fp:source(-fp-model source) is used for bit-for-bit reproducability. If your program does not require this, you can enable /fp:fast(-fp-model fast) for better performance</div>
+		
+	<h3>Build Instructions:</h3>
+	<div>For Microsoft Visual Studio 2010 and 2012 users: <input type="checkbox">
+		<ul class="show-hide disc">
+			<li>Open the solution <code>.sln</code> file</li>
+			<li>[Optional] to use Intel® Math Kernel Library (Intel® MKL) for Gaussian distribution (a different result will be generated): 
+				<ul class="circ">
+					<li>Project Properties -&#62; Configuration Properties -&#62; Intel Performance Libraries: set "Use MKL" to "Parallel"</li>
+					<li>Project Properties -&#62; C/C++ -&#62; Preprocessor -&#62; Preprocessor Definitions: add <code>IS_USING_MKL</code></li>
+				</ul>
+			</li>
+			<li>[Optional] To collect performance numbers (will run example 5 times and take average time):
+				<ul class="circ">
+					<li>Project Properties -&#62; C/C++ -&#62; Preprocessor -&#62; Preprocessor Definitions: add <code>PERF_NUM</code></li>
+				</ul>
+			</li>
+			<li>Choose a configuration (for best performance, choose a release configuration):</li>
+				<ul class="circ">
+					<li>Intel-debug and Intel-release: uses Intel C++ compiler</li>
+					<li>VSC-debug and VSC-release: uses Visual C++ compiler (only linear/scalar will run)</li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+	<div>For Microsoft Windows Command Line users: <input type="checkbox">
+		<ul class="show-hide disc">
+			<li>Enable your particular compiler environment</li>
+			<li>for Intel C++ Compiler:
+				<ul class="circ">
+					<li>open the appropriate Intel C++ compiler command prompt and navigate to project folder</li>
+					<li>to compile: <code>Build.bat [MKL] [perf_num]</code>
+						<ul>
+							<li><code>MKL</code>: compile with Intel Math Kernel Library (Intel MKL)</li>
+							<li><code>perf_num</code>: collect performance numbers (will run example 5 times and take average time)</li>
+						</ul>
+					</li>
+					<li>to run: <code>Build.bat run [help|0|1|2|3|4]</code></li>
+				</ul>
+			</li>
+			<li>for Visual C++ Compiler (only linear/scalar will run): 
+				<ul class="circ">
+					<li>open the appropriate Visual Studio 2010 or 2012 command prompt and navigate to project folder</li>
+					<li>to compile: <code>Build.bat [perf_num]</code>
+						<ul>
+							<li><code>perf_num</code>: collect performance numbers (will run example 5 times and take average time)</li>
+						</ul>
+					</li>
+					<li>to run: <code>Build.bat run</code></li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+	<div>For Linux* or OS X* users: <input type="checkbox">
+		<ul class="show-hide disc">
+			<li>From a terminal window, navigate to the project folder</li>
+			<li>Using Intel C++ compiler:
+				<ul class="circ">
+					<li>Set the icc environment: <code>source &#60;icc-install-dir&#62;/bin/compilervars.sh {ia32|intel64}</code>
+					<li>To compile: <code>make</code> [icpc] [MKL=1] [perf_num=1]</code>
+						<ul>
+							<li><code>MKL=1</code>: compile with Intel Math Kernel Library (Intel MKL)</li>
+							<li><code>perf_num=1</code>: collect performance numbers (will run example 5 times and take average time)</li>
+						</ul>
+					</li>
+					<li>To run: <code>make run [option=help|0|1|2|3|4]</code></li>
+				</ul>
+			</li>
+			<li>Using gcc (only linear/scalar will run):
+				<ul class="circ">
+					<li>To compile: <code>make gcc [perf_num=1]</code>
+						<ul>
+							<li><code>perf_num=1</code>: collect performance numbers (will run example 5 times and take average time)</li>
+						</ul>
+					</li>
+					<li>To run: <code>make run</code></li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+</body>
+</html>

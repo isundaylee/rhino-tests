@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MonteCarlo", "MonteCarlo.vcxproj", "{8CC083A4-674E-4B63-A8A3-115F820978E3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Intel-debug|Win32 = Intel-debug|Win32
+		Intel-debug|x64 = Intel-debug|x64
+		Intel-release|Win32 = Intel-release|Win32
+		Intel-release|x64 = Intel-release|x64
+		VSC-debug|Win32 = VSC-debug|Win32
+		VSC-debug|x64 = VSC-debug|x64
+		VSC-release|Win32 = VSC-release|Win32
+		VSC-release|x64 = VSC-release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8CC083A4-674E-4B63-A8A3-115F820978E3}.Intel-debug|Win32.ActiveCfg = Intel-debug|Win32
+		{8CC083A4-674E-4B63-A8A3-115F820978E3}.Intel-debug|Win32.Build.0 = Intel-debug|Win32
+		{8CC083A4-674E-4B63-A8A3-115F820978E3}.Intel-debug|x64.ActiveCfg = Intel-debug|x64
+		{8CC083A4-674E-4B63-A8A3-115F820978E3}.Intel-debug|x64.Build.0 = Intel-debug|x64
+		{8CC083A4-674E-4B63-A8A3-115F820978E3}.Intel-release|Win32.ActiveCfg = Intel-release|Win32
+		{8CC083A4-674E-4B63-A8A3-115F820978E3}.Intel-release|Win32.Build.0 = Intel-release|Win32
+		{8CC083A4-674E-4B63-A8A3-115F820978E3}.Intel-release|x64.ActiveCfg = Intel-release|x64
+		{8CC083A4-674E-4B63-A8A3-115F820978E3}.Intel-release|x64.Build.0 = Intel-release|x64
+		{8CC083A4-674E-4B63-A8A3-115F820978E3}.VSC-debug|Win32.ActiveCfg = VSC-debug|Win32
+		{8CC083A4-674E-4B63-A8A3-115F820978E3}.VSC-debug|Win32.Build.0 = VSC-debug|Win32
+		{8CC083A4-674E-4B63-A8A3-115F820978E3}.VSC-debug|x64.ActiveCfg = VSC-debug|x64
+		{8CC083A4-674E-4B63-A8A3-115F820978E3}.VSC-debug|x64.Build.0 = VSC-debug|x64
+		{8CC083A4-674E-4B63-A8A3-115F820978E3}.VSC-release|Win32.ActiveCfg = VSC-release|Win32
+		{8CC083A4-674E-4B63-A8A3-115F820978E3}.VSC-release|Win32.Build.0 = VSC-release|Win32
+		{8CC083A4-674E-4B63-A8A3-115F820978E3}.VSC-release|x64.ActiveCfg = VSC-release|x64
+		{8CC083A4-674E-4B63-A8A3-115F820978E3}.VSC-release|x64.Build.0 = VSC-release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
