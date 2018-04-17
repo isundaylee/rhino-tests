@@ -1,6 +1,0 @@
-./release/AveragingFilter res/nahelam.bmp res/nahelam1.bmp
-1.64994
-./release/AveragingFilter res/nahelam.bmp res/nahelam1.bmp
-1.6402
-./release/AveragingFilter res/nahelam.bmp res/nahelam1.bmp
-1.63967
