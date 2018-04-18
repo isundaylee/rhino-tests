@@ -16,7 +16,8 @@ CXX_CURRENT=$CXX_TAPIR
 
 LOG_TAG=""
 
-BENCHMARKS="AveragingFilter_01_07_15 BlackScholes_12_17_14 Mandelbrot_12_17_14 ShortestPath_12_31_14"
+# BENCHMARKS="AveragingFilter_01_07_15 BlackScholes_12_17_14 Mandelbrot_12_17_14 ShortestPath_12_31_14"
+BENCHMARKS="AveragingFilter_01_07_15"
 # BENCHMARKS="BlackScholes_12_17_14"
 # BENCHMARKS="ShortestPath_12_31_14"
 NUM_WORKERS="1 2 4 8"
