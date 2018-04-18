@@ -3,7 +3,7 @@
 WORKSPACE=workspace
 LOGSPACE="../logs"
 
-BIN_TAPIR=$HOME/rhino/build/bin
+BIN_TAPIR="${BIN_TAPIR:-$HOME/rhino/build/bin}"
 
 CC_TAPIR="$BIN_TAPIR/clang -ftapir=cilk"
 CXX_TAPIR="$BIN_TAPIR/clang++ -ftapir=cilk"
