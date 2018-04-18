@@ -8,8 +8,8 @@ BIN_TAPIR="${BIN_TAPIR:-$HOME/rhino/build/bin}"
 CC_TAPIR="$BIN_TAPIR/clang -ftapir=cilk"
 CXX_TAPIR="$BIN_TAPIR/clang++ -ftapir=cilk"
 
-CC_RHINO="$BIN_TAPIR/clang -ftapir=cilk -frhino -O3 -mllvm -polly"
-CXX_RHINO="$BIN_TAPIR/clang++ -ftapir=cilk -frhino -O3 -mllvm -polly"
+CC_RHINO="$BIN_TAPIR/clang -ftapir=cilk -frhino -O3 -mllvm -polly -mllvm -polly-parallel -mllvm -polly-emit-tapir"
+CXX_RHINO="$BIN_TAPIR/clang++ -ftapir=cilk -frhino -O3 -mllvm -polly -mllvm -polly-parallel -mllvm -polly-emit-tapir"
 
 CC_CURRENT=$CC_TAPIR
 CXX_CURRENT=$CXX_TAPIR

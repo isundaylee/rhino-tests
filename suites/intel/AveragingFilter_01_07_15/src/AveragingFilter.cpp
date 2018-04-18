@@ -195,7 +195,7 @@ ALIGN int read_process_write(char* input, char *output, int choice) {
         return 0;
     }    // Involing the image processing API which does some manipulation on the bitmap data read from the input .bmp file
 
-for(int i = 0; i < 20; i++)
+for(int i = 0; i < 200; i++)
 {
 	switch(choice){
 	case 1:	t.start();
