@@ -3,13 +3,22 @@
 WORKSPACE=workspace
 LOGSPACE="../logs"
 
-BIN_RHINO=$HOME/rhino/build/bin
-CC_RHINO="$BIN_RHINO/clang -ftapir=cilk"
-CXX_RHINO="$BIN_RHINO/clang++ -ftapir=cilk"
+BIN_TAPIR=$HOME/rhino/build/bin
+
+CC_TAPIR="$BIN_TAPIR/clang -ftapir=cilk"
+CXX_TAPIR="$BIN_TAPIR/clang++ -ftapir=cilk"
+
+CC_RHINO="$BIN_TAPIR/clang -ftapir=cilk -frhino -O3 -mllvm -polly"
+CXX_RHINO="$BIN_TAPIR/clang++ -ftapir=cilk -frhino -O3 -mllvm -polly"
+
+CC_CURRENT=$CC_TAPIR
+CXX_CURRENT=$CXX_TAPIR
 
 LOG_TAG=""
 
 BENCHMARKS="AveragingFilter_01_07_15 BlackScholes_12_17_14 Mandelbrot_12_17_14 ShortestPath_12_31_14"
+# BENCHMARKS="BlackScholes_12_17_14"
+# BENCHMARKS="ShortestPath_12_31_14"
 NUM_WORKERS="1 2 4 8"
 TRIALS=5
 
@@ -54,8 +63,8 @@ function build_and_run_intel() {
 function build_intel() {
     log_build="$LOGSPACE/$1-build.log"
 
-    export CC=$CC_RHINO
-    export CXX=$CXX_RHINO
+    export CC=$CC_CURRENT
+    export CXX=$CXX_CURRENT
     log "Building (log at $WORKSPACE/$log_build)..."
     make run -B perf_num=1 >$log_build 2>&1
     unset CC

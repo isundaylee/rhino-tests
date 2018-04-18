@@ -38,9 +38,9 @@ int main(int argc, char* argv[]) {
 	double y0 = -0.875;
 	double x1 = 1;
 	double y1 = 0.875;
-	int height = 10240;
+	int height = 10240 / 2;
 	// Width should be a multiple of 8
-	int width = 20480;
+	int width = 20480 / 2;
 	assert(width%8==0);
 	int max_depth = 100;
 

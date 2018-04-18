@@ -15,11 +15,11 @@
 #define __COMPLETE_GRAPH_H_
 
 // Vertex number in the graph
-#define VNUM 2000
+#define VNUM 1000
 // Seed for for random generator
 #define RSEED 1
 // Max edge length value in the graph
-#define EDGE_MAX 2000.0
+#define EDGE_MAX 1000.0
 // Min edge length value in the graph
 #define EDGE_MIN 10.0
 // Max unsigned integer value representing no edge between two vertexes
@@ -45,7 +45,7 @@ void calculate_shortest_path_cfor(void);
 #ifdef CHECK_RESULT
 // Calculate shortest path between each pair of vertex in the graph using Dijkstra algorithm with no optimization
 void calculate_shortest_path_base(void);
-// Check result by comparing with the result of no optimization 
+// Check result by comparing with the result of no optimization
 unsigned char check_result(void);
 #endif
 

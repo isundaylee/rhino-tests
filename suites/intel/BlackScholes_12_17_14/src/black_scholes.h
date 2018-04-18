@@ -20,7 +20,7 @@
 #include <cmath>
 
 const int c_num_options = 1024*1024;
-const int  c_num_iterations = 1024;
+const int  c_num_iterations = 1024/64;
 
 const float c_riskfree = 0.02f;
 const float c_volatility = 0.30f;
